@@ -10,7 +10,7 @@ mới run xong container thì nên apt update trước)
 B4: cài đặt các gói tùy nhu cầu của project (php version mấy, nginx version mấy, mysql, mariadb...)
 
 Cài xong bước nào thì ghi chú lại bước đó để thực thi trên vps. (có một số cái khi cài trên container sẽ bị lỗi nhưng trên vps thì không)
-=> cài phpmyadmin (config chặn truy cập từ user root, http auth basic), setup db (create db, user, cấp quyền cho user,....), backup db, viết code send file với python3
-(vì trong containner có sẵn nên dùng luôn cho tiện),....
+=> cài phpmyadmin (config chặn truy cập từ user root, http auth basic), setup db (create db, user, cấp quyền cho user,....), backup db, viết bash script,
+config crontab, viết code send file với python3 (vì trong containner có sẵn nên dùng luôn cho tiện),....
 => trên container này cứ thực hành thoải mái (vì ta có thể stop, xóa và tạo lại cái mới, khi nào thấy ổn thì chuyển qua vps để thực thi và chạy trên môi trường real)
 => có thể học bashshell script trên container này luôn cũng được vì bản chất nó cũng là ubuntu (linux) thôi.
