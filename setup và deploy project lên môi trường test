@@ -1,0 +1,119 @@
+Yêu cầu tiên quyết là phải cài docker và đã chuẩn bị xong project trên git (gitlab or github), có rất nhiều link để cài đặt docker nhưng mình thấy link này (https://vietnix.vn/install-docker-ubuntu/) phù hợp với ubuntu 18.04 or 20.04 các bạn có thể tham khảo. Bước tiếp theo là cài docker-compose để chạy multi-container (link cài đặt: https://phoenixnap.com/kb/install-docker-compose-on-ubuntu-20-04), cài đặt xong nhớ kiểm tra lại version và status service đã cài đặt để chắc chắn rằng chúng hoạt động.
+
+Sau khi cài đặt xong vào folder /var/www/html (nếu server nào chưa có thì tạo folder bằng lệnh mkdir ) và làm theo từng bước sau:
+
+1. Tạo docker network (docker network create -d bridge name-network) mục đích là để cho các container dùng chung mạng với nhau để connect, chia sẻ dữ liệu ...
+
+2. Tạo thư mục có tên là quanlydb (tên tùy thuộc vào bạn) => cd quanlydb => tạo folder có tên là data (để link dữ liệu từ container mysql ra ngoài vps), tạo tiếp 1 file có tên là docker-compose.yml => nano docker-compose.yml => dưới đây là file docker-compose.yml của mình để tạo 2 container mysql và phpmyadmin:
+
+version: '3'
+
+services:
+
+  db:
+
+   image: mysql:5.7
+
+   container_name: mysql
+
+   volumes:
+
+     - ./data:/var/lib/mysql
+
+   restart: always
+
+   environment:
+
+     MYSQL_ROOT_PASSWORD: ********
+
+     MYSQL_DATABASE: name_db
+
+     MYSQL_USER: name_user
+
+     MYSQL_PASSWORD: *******
+
+  phpmyadmin:
+
+   depends_on:
+
+     - db
+
+   image: phpmyadmin/phpmyadmin
+
+   container_name: phpmyadmin
+
+   restart: always
+
+   ports:
+
+     - '****:80'
+
+   environment:
+
+     PMA_HOST: db
+
+     PMA_PORT: 3306
+
+     PMA_ARBITRARY: 1
+
+networks:
+
+  default:
+
+   external:
+
+     name: blog_web
+
+sau khi viết xong file docker-compose.yml run câu lện docker-compose up -d để pull image mysql, phpmyadmin và run chúng. Chờ chạy xong gõ câu lênh docker ps để kiểm tra 2 container đã hoạt động chưa.
+
+3. cd ra folder html sau đó git clone project api blog về server => cd project tạo 2 file là Dockerfile và docker-compose.yml:
+
+Nội dung Dockerfile:
+
+FROM node:12.19.0
+
+WORKDIR /var/www/html
+
+COPY package*.json ./
+
+RUN npm install
+
+COPY ./ ./
+
+EXPOSE *****
+
+CMD [ "node", "src/index.js" ]
+
+Nội dung docker-compose.yml:
+
+version: "3"
+
+services:
+
+  nodeapi:
+
+   build:
+
+     context: .
+
+   image: api-blog
+
+   volumes:
+
+     - ./:/var/www/html/
+
+   ports:
+
+     - "*****:*****"
+
+   container_name: blog-api
+
+networks:
+
+   default:
+
+     external:
+
+     name: blog_web
+
+4. clone project fontend về và làm tương tự như bước 3, nhưng thay đổi file config chỗ url api thành ip của container api (cmd check ip: docker network inspect bridge blog_web).
