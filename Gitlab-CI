@@ -9,7 +9,7 @@ Trong gitlab-ci 2 vấn đề quan trọng nhất là gitlab-runner và file git
 (Tới đây có thể git pull bằng tay mỗi khi project có commit mới bằng cách: docker exec -it container bash => vào đường dẫn chứa project => git pull, đối vơi project 
 php laravel thì nên chú ý đến các trường hợp bị dính cache, config..., còn container nodejs thì sau khi pull nếu cẩn thận thì check lại file config => nhấn ctrl+d => docker restart container).
 => Nếu muốn tự động pull về mỗi khi có commit mới lên nhánh test thì:
-  thực hiện git cridential trên container (nhớ check thường xuyên vì 1, 2 hôm nó lại hết hạn, mìn có xét hạn cho nó 10 ngày nhưng nó vẫn hết, cái này k biết tại sao)
+  thực hiện git cridential trên container (nhớ check thường xuyên vì 1, 2 hôm nó lại hết hạn, mình có xét hạn cho nó 10 ngày nhưng nó vẫn hết, cái này k biết tại sao)
 lên gitlab vào project tạo một file gitlab-ci.yml => viết nội dung cho file vd như:
 stages:
     - test
@@ -26,6 +26,9 @@ docker-test:
 
   script:
     - docker exec -it container /bin/bash -c "git pull;"
+   only:
+    = test //chỉ thực hiện trên nhánh test
+    
  => sau khi viết xong thì commit vào vào CI/CD => pipelines trên gitlab project để xem kết quả.
 
 Có thể viết file docker-compose.yml, Dockerfile, gitlab-ci.yml trên gitlab rồi build => push image registry luôn cũng được mà mỗi lần có commit nó cứ build lại hoài tốn thời gian
