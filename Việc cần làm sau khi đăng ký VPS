@@ -1,0 +1,5 @@
+Sau khi lựa chọn và đăng kí xong vps ta click vào thông tin chi tiết của vps để lấy địa chỉ IP và password của user root 
+=> mở terminal hoặc mở cmd đối với Windows (nếu chưa cài thì phải cài ssh client và ssh server) => gõ lệnh: ssh root@IP -p22 để truy cập vào vps thông qua ssh, 
+việc đầu tiên là đổi password của root và tạo một user khác để truy cập ssh vào vps sau đó vào config của ssh đổi port mặc định 22 thành port khác, 
+config cho phép user tạo ở trên được truy cập vào ssh và từ chối quyền truy cập từ root. Restart lại ssh service => run ufw allow port ssh đổi ở trên => ctrl + d (hoặc gõ exit) 
+=> ssh user@IP -pnew_port => su root => cài docker hoặc các package khác tùy nhu cầu sử dụng của bạn (nếu có thể cài thêm fail2ban) ....
