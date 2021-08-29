@@ -1,0 +1,32 @@
+Trong gitlab-ci 2 vấn đề quan trọng nhất là gitlab-runner và file gitlab-ci.yml .
+- Phân quyền user cho project trên gitlab và tạo thêm 1 nhánh test (để thực hiện merger và chỉ chạy gitlab-ci trên nhánh này thôi)
+- Để đăng ký gitlab runner trên vps vào project trên gitlab kéo xuống chỗ setting => chọn CI/CD => expand Runners => lấy URL và token đi đăng ký gitlab-runner trên vps
+- Install gitlab-runner trên vps (link hướng dẫn: https://docs.gitlab.com/runner/install/linux-manually.html) 
+=> gitlab-runner registry trên vps (https://docs.gitlab.com/runner/register/) => gitlab-runner run
+=> config gitlab-runner: (/etc/gitlab-runner/config.toml) để config lại (có thể chỉnh sửa lại: privileged, volumes ....)
+=> cài docker và deploy project với các containner (clone ở nhánh test về, link hướng dẫn: https://github.com/VoDinhNghia/Docker-GitlabCI-VPS)
+=> Tạo ssh key (trường hợp port vps đã đổi sang port khác không phải mặc định 22 thì khó để config, giải pháp có thể dùng cridential git trên container đang chạy project)
+(Tới đây có thể git pull bằng tay mỗi khi project có commit mới bằng cách: docker exec -it container bash => vào đường dẫn chứa project => git pull, đối vơi project 
+php laravel thì nên chú ý đến các trường hợp bị dính cache, config..., còn container nodejs thì sau khi pull nếu cẩn thận thì check lại file config => nhấn ctrl+d => docker restart container).
+=> Nếu muốn tự động pull về mỗi khi có commit mới lên nhánh test thì:
+  thực hiện git cridential trên container (nhớ check thường xuyên vì 1, 2 hôm nó lại hết hạn, mìn có xét hạn cho nó 10 ngày nhưng nó vẫn hết, cái này k biết tại sao)
+lên gitlab vào project tạo một file gitlab-ci.yml => viết nội dung cho file vd như:
+stages:
+    - test
+
+docker-test:
+  image: docker:latest
+  stage: test
+  services:
+    - docker:dind
+  tags: 
+    - docker-gitlab //đăng ký trên vps
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+  script:
+    - docker exec -it container /bin/bash -c "git pull;"
+ => sau khi viết xong thì commit vào vào CI/CD => pipelines trên gitlab project để xem kết quả.
+
+Có thể viết file docker-compose.yml, Dockerfile, gitlab-ci.yml trên gitlab rồi build => push image registry luôn cũng được mà mỗi lần có commit nó cứ build lại hoài tốn thời gian
+nên mình chọn giải pháp này.
